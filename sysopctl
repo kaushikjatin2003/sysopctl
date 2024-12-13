@@ -1,0 +1,139 @@
+
+# What is sysopctl -It is  a command for managing system resources and tasks
+
+
+# Helper function to display the help message
+show_help() {
+  echo "Usage: sysopctl [command] [options]"
+  echo "Commands:"
+  echo "  service list                - List all active services"
+  echo "  service start <name>        - Start a specific service"
+  echo "  service stop <name>         - Stop a specific service"
+  echo "  system load                 - Show system load averages"
+  echo "  disk usage                  - Display disk usage statistics"
+  echo "  process monitor             - Monitor real-time process activity"
+  echo "  logs analyze                - Summarize recent critical log entries"
+  echo "  backup <path>               - Backup files from a given path"
+  echo "  --help                      - Show this help message"
+  echo "  --version                   - Show the command version"
+}
+
+# Display version information
+show_version() {
+  echo "sysopctl version v0.1.0"
+}
+
+# List active services
+list_services() {
+  echo "Listing active services..."
+  systemctl list-units --type=service
+}
+
+# Show system load
+show_system_load() {
+  echo "Current system load averages:"
+  uptime
+}
+
+# Start a service
+start_service() {
+  echo "Starting service: $1"
+  systemctl start "$1"
+  echo "Service started successfully."
+}
+
+# Stop a service
+stop_service() {
+  echo "Stopping service: $1"
+  systemctl stop "$1"
+  echo "Service stopped successfully."
+}
+
+# Display disk usage
+check_disk_usage() {
+  echo "Disk usage statistics:"
+  df -h
+}
+
+# Monitor system processes
+monitor_processes() {
+  echo "Monitoring real-time process activity..."
+  top
+}
+
+# Analyze system logs
+analyze_logs() {
+  echo "Analyzing recent critical logs..."
+  journalctl -p crit
+}
+
+# Backup system files
+backup_files() {
+  if [ -z "$1" ]; then
+    echo "Error: No path provided for backup."
+    exit 1
+  fi
+  echo "Backing up files from $1..."
+  rsync -av --progress "$1" ~/backup/
+  echo "Backup completed."
+}
+
+# Main script logic
+case "$1" in
+  --help)
+    show_help
+    ;;
+  --version)
+    show_version
+    ;;
+  service)
+    case "$2" in
+      list)
+        list_services
+        ;;
+      start)
+        start_service "$3"
+        ;;
+      stop)
+        stop_service "$3"
+        ;;
+      *)
+        echo "Invalid service command. Use --help for usage details."
+        ;;
+    esac
+    ;;
+  system)
+    if [ "$2" == "load" ]; then
+      show_system_load
+    else
+      echo "Invalid system command. Use --help for usage details."
+    fi
+    ;;
+  disk)
+    if [ "$2" == "usage" ]; then
+      check_disk_usage
+    else
+      echo "Invalid disk command. Use --help for usage details."
+    fi
+    ;;
+  process)
+    if [ "$2" == "monitor" ]; then
+      monitor_processes
+    else
+      echo "Invalid process command. Use --help for usage details."
+    fi
+    ;;
+  logs)
+    if [ "$2" == "analyze" ]; then
+      analyze_logs
+    else
+      echo "Invalid logs command. Use --help for usage details."
+    fi
+    ;;
+  backup)
+    backup_files "$2"
+    ;;
+  *)
+    echo "Invalid command. Use --help for usage details."
+    ;;
+esac
